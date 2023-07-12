@@ -248,6 +248,25 @@ function createCellMatrix(width, height){
     document.getElementById("cellContainer").innerHTML += matrixHtml
 }
 
+function setCellMatrix(width, height){
+    var cells = new Array()
+    var matrixDiv = document.createElement("div")
+    matrixDiv.classList.add("cellMatrix")
+    for (var rowi = 0; rowi < height; rowi++){
+        var row = document.createElement("div")
+        row.classList.add("cellRow")
+        cells.push(new Array())
+        for (var coli = 0; coli < width; coli++){
+            var cell = document.createElement("div")
+            cell.classList.add("charCell")
+            row.appendChild(cell)
+            cells[rowi].push(cell)
+        }
+        matrixDiv.appendChild(row)
+    }
+    cellContainer.replaceChildren(matrixDiv)
+}
+
 function clearAllCellMatrix(){
     document.getElementById("cellContainer").innerHTML = ""
 }
@@ -265,7 +284,7 @@ function updateMatrixSize(width, height){
 }
 
 function setMatrixSize(width, height){
-    createCellMatrix(width, height);
+    setCellMatrix(width, height);
     updateInputSize(width, height);
     matrixWidth = width
 }
