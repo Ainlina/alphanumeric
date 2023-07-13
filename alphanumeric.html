@@ -248,27 +248,51 @@ function createCellMatrix(width, height){
     document.getElementById("cellContainer").innerHTML += matrixHtml
 }
 
-function setCellMatrix(width, height){
-    var cells = new Array()
-    var matrixDiv = document.createElement("div")
-    matrixDiv.classList.add("cellMatrix")
-    for (var rowi = 0; rowi < height; rowi++){
-        var row = document.createElement("div")
-        row.classList.add("cellRow")
-        cells.push(new Array())
-        for (var coli = 0; coli < width; coli++){
-            var cell = document.createElement("div")
-            cell.classList.add("charCell")
-            row.appendChild(cell)
-            cells[rowi].push(cell)
-        }
-        matrixDiv.appendChild(row)
-    }
-    cellContainer.replaceChildren(matrixDiv)
-}
-
 function clearAllCellMatrix(){
     document.getElementById("cellContainer").innerHTML = ""
+}
+
+class cell{
+    constructor(initChar){
+        this.setChar(initChar)
+    }
+}
+
+class cellMatrix{
+    constructor(initheight, initwidth){
+        this.height = initheight
+        this.width = initwidth
+        this.matrixDiv = document.createElement("div")
+        matrixDiv.classList.add("cellMatrix")
+        this.setSize(initheight, initwidth)
+    }
+
+    setSize(width, height){
+        this.cells = new Array()
+        this.rows = new Array()
+        for (var rowi = 0; rowi < height; rowi++){
+            var row = document.createElement("div")
+            row.classList.add("cellRow")
+            for (var coli = 0; coli < width; coli++){
+                var cell = document.createElement("div")
+                cell.classList.add("charCell")
+                row.appendChild(cell)
+                this.cells.push(cell)
+            }
+            this.rows.push(row)
+        }
+        this.matrixDiv.replaceChildren(rows)
+    }
+
+    async setMatrixMessage(inputMessage){
+    var paddedMessageLines = padWrapLinesToTarget(inputMessage, this.width, this.height);
+    for (var i=0; i<this.height*this.width; i++){
+        if (i<paddedMessage.length){
+            setCellText(paddedMessage[i], )
+        }
+        await sleep(multiplexSpeedMs)
+    }
+}
 }
 
 function updateInputSize(width, height){
@@ -331,18 +355,7 @@ async function setCellText(inputChar, targetCell){
     targetCell.innerHTML = " "
 }
 
-async function setMatrixMessage(inputMessage, targetMatrix){
-    var paddedMessage = padWrapLinesToTarget(inputMessage, matrixWidth);
-    for (var i=0; i<targetMatrix.getElementsByClassName("charCell").length; i++){
-        if (i<paddedMessage.length){
-            setCellText(paddedMessage[i], targetMatrix.getElementsByClassName("charCell")[i])
-        }
-        else{
-            setCellText(" ", targetMatrix.getElementsByClassName("charCell")[i])
-        }
-        await sleep(multiplexSpeedMs)
-    }
-}
+
 
 function piezoClick(){
     if (context){
@@ -392,7 +405,7 @@ function ceilDiv(a, b){ // divide and round up, without any floats, for a>=0 and
     return (a + (((-a)%b) + b)%b) / b
 }
 
-function padWrapLinesToTarget(inputText, targetWidth = matrixWidth, padchar = " "){
+function padWrapLinesToTarget(inputText, targetWidth, targetHeight, padchar = " "){
     // pads and wraps lines to target width
     // lines longer than target width will be wrapped
     var returnLines = new Array()
@@ -404,8 +417,13 @@ function padWrapLinesToTarget(inputText, targetWidth = matrixWidth, padchar = " 
             returnLines.push(currentLine.slice(targetWidth * subLine, targetWidth * (subLine + 1)))
         }
         returnLines.push(currentLine.slice(targetWidth * (numFullLines - 1)) + padchar.repeat(targetWidth - (currentLine.length - 1) % targetWidth - 1))
+        if (returnLines.length >= targetHeight){break}
     }
-    return returnLines.join("")
+    if (returnLines.length < targetHeight){
+        const padRow = padchar.repeat(targetWidth)
+        Array.prototype.push.apply(returnLines, padRow.repeat(returnLines.length - targetHeight))
+    }
+    return returnLines
 }
 
 
